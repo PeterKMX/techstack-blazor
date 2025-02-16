@@ -1,0 +1,784 @@
+<!DOCTYPE HTML>
+
+
+<html lang="en">
+<head>
+
+	
+	<link rel="preconnect" href="https://www.google-analytics.com">
+
+	<link rel="preconnect" href="https://www.codeproject.com">
+
+
+	<link rel="preload" href="https://www.codeproject.com/App_Themes/CodeProject/Img/logo250x135.gif" as="image">
+
+
+	<link rel="preload" href="/App_Themes/CodeProject/Img/logo135-bg.gif" as="image">
+	<link rel="preload" href="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js" as="script" type="text/javascript" >
+
+
+	<title>Containerizing a .NET 8 Blazor application and deploying on GCP Cloud Run- CodeProject</title> 
+    
+	<link type="text/css" rel="stylesheet" href="https://www.codeproject.com/App_Themes/CodeProject/Css/Article.min.css?dt=2.8:2024-12-08:1">
+
+
+    <script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js" defer ></script>
+<script type="text/javascript" src="https://www.codeproject.com/script/Articles/JS/article.min.js?dt=2.8:2024-12-08:1" defer ></script>
+
+	
+<meta http-equiv="content-language" content="en-US">
+<meta charset="UTF-8">
+<meta name="Description" content="This article illustrates Google Cloud deployment of a containerized web application such as a .NET 8 Blazor Web App, and shows that the procedure is significantly simplified when GCP Cloud Run is used.">
+<meta name="Keywords" content="C#, .NET, cloud, deployment, docker, Blazor">
+<meta name="Author" content="peterkmx">
+<meta name="Rating" content="General">
+<meta name="Revisit-After" content="1 days">
+<meta name="application-name" content="CodeProject">
+<meta name="google-translate-customization" content="d908bb7ce7aff658-4c2f3a504525c916-g629383f736781a8a-13">
+
+
+
+<link rel="dns-prefetch" href="//ajax.googleapis.com"> 
+<link rel="canonical" href="https://www.codeproject.com/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:site" content="@CodeProject" />
+<meta name="og:site_name" content="CodeProject" />
+<meta name="twitter:creator" content="@CodeProject" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="8/21/2024 7:20:00 AM" />
+<meta property="article:modified_time" content="8/25/2024 12:56:00 AM" />
+<meta name="twitter:label1" content="Written by">
+<meta name="twitter:data1" content="peterkmx">
+<meta name="twitter:label2" content="Reading time">
+<meta name="twitter:data2" content="8 min read">
+<meta property="og:url" content="https://www.codeproject.com/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl" />
+<meta property="og:title" content="Containerizing a .NET 8 Blazor application and deploying on GCP Cloud Run" />
+<meta property="og:description" content="This article illustrates Google Cloud deployment of a containerized web application such as a .NET 8 Blazor Web App, and shows that the procedure is significantly simplified when GCP Cloud Run is used." />
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="apple-touch-icon" sizes="144x144" href="/favicon/apple-touch-icon.png"> 
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"> 
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"> 
+<link rel="manifest" href="/favicon/manifest.json"> 
+<link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#ff9900">
+	<script type='application/ld+json'>{
+  "@context": "http://schema.org",
+  "@type": "TechArticle",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.codeproject.com/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl"
+   },
+  "name": "Containerizing a .NET 8 Blazor application and deploying on GCP Cloud Run",
+  "headline": "Containerizing a .NET 8 Blazor application and deploying on GCP Cloud Run",
+  "url": "https://www.codeproject.com/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl",
+  "discussionUrl": "https://www.codeproject.com/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl#_comments",
+  "isFamilyFriendly": "true",
+  "image": "https://www.codeproject.com/App_Themes/CodeProject/Img/Article100.png",
+  "keywords": "C#,.NET,cloud,deployment,docker,Blazor",
+  "commentCount": "0",
+  "editor" : {
+    "@type" : "Person",
+    "name" : "Editor",
+    "url" : "https://www.codeproject.com/script/Membership/View.aspx?mid=6430"
+  },
+  "license": "http://www.codeproject.com/info/cpol10.aspx",
+  "publisher" : {
+    "@type" : "Organization",
+    "name" : "CodeProject"
+  },
+  "description": "The aim of this article is to illustrate the use of GCP Cloud Run for Google Cloud deployment of a containerized web application such as a .NET 8 Blazor Web App. The cloud deployment procedure is demonstrated via several steps starting with.NET SDK command “dotnet new …” to scaffold a .NET 8 Blazor Web App, and ending with GCP Cloud Shell command “gcloud run deploy …”, which creates a GCP Cloud Run service from Docker image, and runs the containerized web application. The use case shows that the process is easy to manage, and, that it provides https access to the deployed web application out-of-the-box.",
+  "articleSection": "deployment",
+  "author" : [{
+      "@type" : "Person",
+      "name" : "peterkmx",
+      "url" : "https://www.codeproject.com/script/Membership/View.aspx?mid=6430"
+    }],
+  "datePublished": "2024-08-21",
+  "dateCreated": "2024-08-21",
+  "dateModified": "2024-08-25"
+,
+  "contentRating" : {
+    "@type" : "Rating",
+    "ratingValue" : 5.00,
+    "bestRating" : 5,
+    "worstRating" : 1
+  }
+}</script>
+
+<script type='application/ld+json'>{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+    "@type": "ListItem",
+    "position": 1,
+    "item" : {
+      "@id" : "/script/Content/Tag.aspx?tags=DevOps",
+      "name" : "DevOps"
+    }
+  },{
+    "@type": "ListItem",
+    "position": 2,
+    "item" : {
+      "@id" : "/script/Content/Tag.aspx?tags=deployment",
+      "name" : "deployment"
+    }
+  }]
+}</script>
+
+
+	<base target="_top" />
+	
+    
+
+
+<script type='text/javascript'>
+function defrm () { /* thanks twitter */
+    document.write = '';
+    window.top.location = window.self.location;
+    setTimeout(function() { document.body.innerHTML = ''; }, 0);
+    window.self.onload = function(evt) { document.body.innerHTML = ''; };
+}
+
+if (window.top !== window.self) {
+    try {
+        if (window.top.location.host) { /* will throw for all except chrome */ }
+        else { defrm(); /* chrome */ }
+    } catch (ex) { defrm(); /* everyone else */ }
+}
+
+// Specific case where a site is screwing with us.
+if (typeof(DemoUrl) !== 'undefined') {
+    document.write(unescape('%3Cme') + 'ta http' + '-equiv="re' + 'fresh con' +
+                           'tent="1;url=' + DemoUrl + unescape('"%3CE'));
+}
+</script>
+	
+
+
+
+
+
+    <script async type="text/javascript" src="https://www.googletagmanager.com/gtag/js?id=UA-1735123-1"></script>
+    <script type="text/javascript">
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'UA-1735123-1' , {'user_id': 'a2bc80ca-3c60-4f1e-ad80-efaa0d804e37'});
+    </script>
+
+</head>	
+
+<body class="firefox firefox133">
+
+
+
+<a class="access-link" href="#Main"><img alt="Click here to Skip to main content" src="https://www.codeproject.com/images/t.gif" /></a>
+
+
+
+
+<div class="page-background">
+
+	
+	
+
+	
+
+	
+    <div id="ctl00_STM" class="site-top-menu fixed narrow">
+        <div class="main-content">
+            
+
+<div class="container memberbar clearfix flex-container flex-extend">
+
+	<div id="ctl00_MemberBar_GenInfo" class="flex-item align-left">65,938 articles</div>
+	
+	<div id="ctl00_MemberBar_ChangeNotice" class="flex-item align-left">CodeProject
+	is changing. <a href="/info/Changes.aspx">Read more</a>.</div>
+
+	<div class="flex-item">
+		
+	</div>
+
+	<div class="flex-item align-right">
+
+		
+
+		
+
+		
+	</div>
+</div>
+        </div>
+    </div>
+
+	
+    <div id="ctl00_SH" class="site-header fixed narrow">
+        <div class="main-content">
+            <div class="logo"><a href="/"><img id="ctl00_Logo" tabindex="1" title="CodeProject" src="https://www.codeproject.com/App_Themes/CodeProject/Img/logo250x135.gif" alt="Home" style="height:135px;width:250px;border-width:0px;" /></a></div>
+            <div class="promo"></div>
+        </div>
+    </div>
+
+	
+			
+	
+
+	<div id="A" class="container-content-wrap fixed narrow"> 
+
+	<div class="container-content">
+
+        
+		<div class="clearfix">
+			<div class="container-breadcrumb float-left ">
+				<div><a rel="nofollow" href="/script/Content/SiteMap.aspx">Articles</a> / <a rel="nofollow" href="/script/Content/Tag.aspx?tags=DevOps">DevOps</a> / <a rel="nofollow" href="/script/Content/Tag.aspx?tags=deployment">deployment</a></div>
+			</div>
+
+            <div class="float-left">
+				
+			</div>
+
+			<div class="edit-links float-right">
+				
+
+
+
+ 
+&nbsp;
+
+
+
+
+
+
+
+
+
+
+			</div>
+
+			<div class="article-nav float-right">
+				
+
+
+<div style="display:inline-block;position:relative;top:-6px;margin-right:20px">
+    
+</div>
+
+
+
+ 
+
+<a id="ctl00_ActionLinks_PrintMd" data-tooltip="Print" data-enabletooltip="true" data-width="auto" href="/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl?display=Print">
+   <img src="/App_Themes/CodeProject/Img/print48.png" 
+	    width="24" height="24" style="border:0">
+</a>
+
+
+
+<span id="ctl00_ActionLinks_R">
+    
+    
+</span>
+			</div>
+		</div>
+
+        
+		<div class="extended article-container-parts">
+
+			
+		    
+            
+
+			
+			<div id="AT" class="article-container  fixed narrow" style="max-width:inherit;"> 
+
+				<div class="article">
+
+					<form name="aspnetForm" method="post" action="./View.aspx" id="aspnetForm" style="margin:0;padding:0">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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" />
+</div>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="10C1FD69" />
+</div>
+
+					
+					 
+					<div class="header">
+					    <a name="Main"></a>
+					    <a name="_articleTop" id="_articleTop"></a>
+
+					    
+						<div>
+							<span id="ctl00_TagListHorz_TagWrp" class="tags horizontal">
+
+	
+	
+
+	
+	<span id="ctl00_TagListHorz_VisibleTags"><div class="t"><a rel="tag" href="/Tags/Csharp" data-id="81">C#</a></div><div class="t"><a rel="tag" href="/Tags/.NET" data-id="98">.NET</a></div><div class="t"><a rel="tag" href="/Tags/cloud" data-id="1120">cloud</a></div><div class="t"><a rel="tag" href="/Tags/deployment" data-id="1294">deployment</a></div><div class="t"><a rel="tag" href="/Tags/docker" data-id="4369">docker</a></div><div class="t"><a rel="tag" href="/Tags/Blazor" data-id="4641">Blazor</a></div></span> 
+
+	
+	
+</span>
+
+
+						</div>
+					    <div class="title">
+					        <h1 id="ctl00_ArticleTitle">Containerizing a .NET 8 Blazor application and deploying on GCP Cloud Run</h1>
+					    </div>
+
+                        <div>
+					        
+					        <div class="entry flex-container">
+
+								
+
+                                <div class="flex-item" style="flex:1 1 auto">
+                                    <div class="flex-container" style="justify-content:space-between;flex-wrap:wrap-reverse">
+                                       <span id="ctl00_Authors" class="author flex-item"><a href="/script/Membership/View.aspx?mid=6430" rel="author">peterkmx</a></span> 
+
+                                        <div class="flex-item" style="margin-top:-4px;">
+                                            <div id="ctl00_RateArticle_RatingTable" class="small-text" data-objectref="2_5353867">
+
+	<meta itemprop="upvoteCount" content="1">
+
+
+	<div id="ctl00_RateArticle_RatingRow" class="flex-container rating-container large-stars">
+
+					
+		
+
+		
+		<div class="nowrap tooltip">
+
+			
+			<div id="ctl00_RateArticle_ResultNoHist" class="rating-result"><div class="flex-container rating-stars large-stars"><div><img src='https://www.codeproject.com/script/Ratings/Images/star-fill-lg.png' style='width:24px;height:24px'></div><div><img src='https://www.codeproject.com/script/Ratings/Images/star-fill-lg.png' style='width:24px;height:24px'></div><div><img src='https://www.codeproject.com/script/Ratings/Images/star-fill-lg.png' style='width:24px;height:24px'></div><div><img src='https://www.codeproject.com/script/Ratings/Images/star-fill-lg.png' style='width:24px;height:24px'></div><div><img src='https://www.codeproject.com/script/Ratings/Images/star-fill-lg.png' style='width:24px;height:24px'></div></div></div>
+			
+
+			
+			
+
+			
+            
+
+			
+                
+
+		</div>
+		
+	
+		
+		<div id="ctl00_RateArticle_VoteCountNoHist" class="rating-votes nowrap">5.00/5  (1 vote)</div>	
+
+		
+
+		
+		<div class="rating-undo" title="Undo vote" style="margin-left:5px;display:none"></div>
+
+		
+		
+	</div>
+
+	
+	
+
+</div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class="flex-container" style="color:#666;font-size:smaller">
+                                        <span id="ctl00_LastUpdated" class="date flex-item-tight" title="Date last updated">24 Aug 2024</span><a id="ctl00_LicenseLink" title="The Code Project Open License (CPOL)" class="license flex-item-tight" title="Licence" href="http://www.codeproject.com/info/cpol10.aspx">CPOL</a><span id="ctl00_ReadingTime" class="stats flex-item-tight">8 min read</span><span id="ctl00_HorizontalStats" class="stats flex-item-tight"><span class="stats"><span title='Views'><img src='https://www.codeproject.com/App_Themes/CodeProject/Img/views32.png' style='width:16px'> 4.5K</span> &nbsp; <span title='Downloads'><img src='https://www.codeproject.com/App_Themes/CodeProject/Img/download32.png' style='width:16px'> 21</span> &nbsp; </span></span>
+                                    </div>
+                                </div>
+					        </div>
+
+                            
+
+                        </div>
+
+                        <div id="ctl00_DescriptionSpot" class="summary">This article illustrates Google Cloud deployment of a containerized web application such as a .NET 8 Blazor Web App, and shows that the procedure is significantly simplified when GCP Cloud Run is used.</div><span id="ctl00_ThumbnailUrl" class="date" content="https://www.codeproject.com/script/Articles/Images/article100x80.png"></span>			
+
+                    </div>
+                    
+					
+					
+
+					
+
+					
+					<div id="ctl00_Abstract" class="abstract">The aim of this article is to illustrate the use of GCP Cloud Run for Google Cloud deployment of a containerized web application such as a .NET 8 Blazor Web App. The cloud deployment procedure is demonstrated via several steps starting with.NET SDK command “dotnet new …” to scaffold a .NET 8 Blazor Web App, and ending with GCP Cloud Shell command “gcloud run deploy …”, which creates a GCP Cloud Run service from Docker image, and runs the containerized web application. The use case shows that the process is easy to manage, and, that it provides https access to the deployed web application out-of-the-box.</div>
+
+					
+					
+
+						
+					
+
+					
+
+						
+						<div id="contentdiv" class="text">
+						
+
+
+
+<!-- Article Starts -->
+
+<html><head></head><body><ul class="download">
+	<li><a href="/KB/Articles/5353867/blazor-cloud-run-src.zip">Download source - 794.6 KB</a></li></ul>
+
+<h2>1. Introduction</h2>
+
+<p>One of my latest project challenges has been to provide deployment on GCP (Google Cloud Platform) of a containerized .NET 8 web application. A first obvious option has been to use GKE (Google Kubernets Engine). However, in the preparation stage, I found that providing https access to a GKE cluster required some extra steps. For this reason it has been reasonable to consider other options, and I decided to work on the use case involving GCP Cloud Run, which offers out-of-the-box https access to served Docker container clusters.&nbsp;&nbsp;</p>
+
+<p>This article describes the use case of dockerization and deployment on Cloud Run of a default NET 8. Blazor Web Application. The procedure involves the following steps:</p>
+
+<ol>
+	<li>Scaffolding a NET 8. Blazor Web App on Windows 10</li>	<li>Configuring port number</li>	<li>Compiling and publishing the scaffolded web application in a local folder (using Visual Studio 2022)</li>	<li>Use of DockerDestop to build a Docker image of the web application on Windows 10</li>	<li>Image exporting to *.tar format and importing into GCP Cloud Shell</li>	<li>Docker image deployment to GCP Artifact Registry</li>	<li>Bulding a Cloud Run service which pulls Docker image from GCP Artifact Registry, generates a https endpoint, and runs the application</li>	<li>Testing https access to deployed .NET 8 Blazor Web Application running on GCP Cloud Run</li></ol>
+
+<p>The core part of this article illustrates the bash and PowerShell commands used to implement the above deployment scenario.</p>
+
+<h2>2. Source code</h2>
+
+<p>The attached zip file contains the project sources for building and running the docker image using a local Docker Desktop (Section 5, Steps 4-5). &nbsp;</p>
+
+<h2>3. Technologies and tools used</h2>
+
+<p>The technologies and tools used in this article include:</p>
+
+<p>- .NET 8 SDK, installed on Windows 10 Pro<br>
+- Visual Studio 2022 Community Edition, installed on Windows 10 Pro<br>
+- DockerDesktop, installed on Windows 10 Pro<br>
+- Google Cloud Platform (GCP) personal account<br>
+- GCP Cloud Console and Cloud Shell<br>
+- GCP services and APIs, including GCP Artifact Registry, and GCP Cloud Run</p>
+
+<h2>4. Introducing the GCP Cloud Run command</h2>
+
+<p>Deployment of a dockerized web application on a GCP Kubernetes Engine (GKE) cluster can be a daunting process. In particular, exposing it via HTTPS involves extra steps, but GCP offers via Cloud Run a much simpler approach. In this approach, deploying a Docker image from Google Artifact Registry (GAR) as a Cloud Run service is done via executing a simple gcloud command in Cloud Shell, which results in building the service and providing a HTTPS endpoint of the application. This is the format of the Cloud Run command for such a scenario:</p>
+
+<div class="pre-lang" id="premain190271"><div>Shell</div><div class="pre-action-link"><span id="copycode190271" class="copy-code" data-index="190271" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre190271" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">gcloud run deploy &lt;service-name&gt; \
+&nbsp;--image &lt;region&gt;-docker.pkg.dev/&lt;project-id&gt;/&lt;repository&gt;/&lt;image&gt;:&lt;tag&gt; \
+&nbsp;--platform managed \
+&nbsp;--port &lt;port-nr&gt;</pre>
+
+<p>In the above command, the parameter &lt;service-name&gt; is the name of a GCP Cloud Run service, for example “my-blazor-app”, &lt;region&gt; is a standard GCP region name such as “europe-west1”, &lt;project-id&gt; is a GCP project ID, &lt;repository&gt; represents the name of a Google Arttifact Registry repository holding the image, and &lt;image&gt;:&lt;tag&gt; pair represents the name and a tag string of the image. The parameter &lt;port-nr&gt; represents port number exposed by the web application.</p>
+
+<p>When executed within the GCP Cloud Shell, this command will request some additional information, in particular a confirmation of the GCP region name and a confirmation of the operation mode allowing unauthenticated invocations of the service &lt;service-name&gt;. Next, it will build the service, and this build will generate a few lines of feedback about the process, among others providing the application https endpoint in the format:</p>
+
+<div class="pre-lang" id="premain647002"><div>Shell</div><div class="pre-action-link"><span id="copycode647002" class="copy-code" data-index="647002" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre647002" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">https://&lt;service-name&gt;-&lt;additional-id-string&gt;.run.app</pre>
+
+<h2>5. Implementing the use case</h2>
+
+<p>The deployment use case outlined in the introduction is implemented in the following 8 steps.</p>
+
+<h3>Step 1: Creating a .NET 8 Blazor web application</h3>
+
+<p>We start with creation of a .NET 8 Blazor web application by the use of .NET SDK command line. The command “dotnet new blazor …” uses the newest Blazor template to scaffold a default Blazor Web application, which initially has SSR-type (Server Side Rendering).</p>
+
+<div class="pre-lang" id="premain521717"><div>Shell</div><div class="pre-action-link"><span id="copycode521717" class="copy-code" data-index="521717" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre521717" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">dotnet new blazor -n blazorapp -f net8.0 --no-https</pre>
+
+<h3>Step 2: Setting port number</h3>
+
+<p>Next step is to start the csproj file in Visual Studio 2022, and to adapt appsettings.json, so that the http port 8088 will consistently be used before and after dockerizing this application.</p>
+
+<div class="pre-lang" id="premain476330"><div>JavaScript</div><div class="pre-action-link"><span id="copycode476330" class="copy-code" data-index="476330" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre476330" style="margin-top:0;" class="lang-javascript" data-language="jscript" data-allowshrink="True" data-collapse="False">appsettings.json
+{
+&nbsp; <span class="code-string">"</span><span class="code-string">Logging"</span>: {
+&nbsp;&nbsp;&nbsp; <span class="code-string">"</span><span class="code-string">LogLevel"</span>: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="code-string">"</span><span class="code-string">Default"</span>: <span class="code-string">"</span><span class="code-string">Information"</span>,
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="code-string">"</span><span class="code-string">Microsoft.AspNetCore"</span>: <span class="code-string">"</span><span class="code-string">Warning"</span>
+&nbsp;&nbsp;&nbsp; }
+&nbsp; },
+&nbsp; <span class="code-string">"</span><span class="code-string">AllowedHosts"</span>: <span class="code-string">"</span><span class="code-string">*"</span>,
+&nbsp; <span class="code-string">"</span><span class="code-string">Kestrel"</span>: {
+&nbsp;&nbsp;&nbsp; <span class="code-string">"</span><span class="code-string">Endpoints"</span>: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="code-string">"</span><span class="code-string">Http"</span>: {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="code-string">"</span><span class="code-string">Url"</span>: <span class="code-string">"</span><span class="code-string">http://*:8088"</span>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp; }
+&nbsp; }
+}</pre>
+<p><img height="auto" width="700" style="border:1" src="Fig-1.png" ></p>
+
+<h3>Step 3: Running the Blazor application from Visual Studio 2022</h3>
+
+<p>We also adapt launchsettings.json to use port 8088, so that running in debug mode also happens with endpoint port number 8088.</p>
+
+<p><img height="312" width="621" style="border:1" src="Fig-2.png" ></p>
+
+<h3>Step 4: Publishing a binary release for Linux containerization</h3>
+
+<p>Next step is creation of the binary release for Linux-x64 in order to provide compatibility with Docker container OS which defaults to Linux. The publishing step in Visual Studio 2022 provides this functionality via menu options “Publish blazorapp” and “Publish to folder”.</p>
+
+<p><img height="278" width="314" src="Fig-3.png" class="lazyload"></p>
+
+<p><img height="204" width="406" src="Fig-4.png"></p>
+
+<p>With Target Runtime set to linux-x64, executing the above step creates the Blazor application files in the path specified as Target location ‘bin\release\net8.0\publish\’.</p>
+
+<p>It shoud be noted that this step can also be done with .NET SDK command line as follows</p>
+
+<div class="pre-lang" id="premain665492"><div>Shell</div><div class="pre-action-link"><span id="copycode665492" class="copy-code" data-index="665492" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre665492" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">dotnet publish -c Release -f net8.0 -r linux-x64 -o ./bin/release/net8.0/publish/ --self-contained false</pre>
+
+<p>This way, we are free to choose in the current use case how to publish the release.<br>
+<br>
+It should be underlined that the command “dotnet publish …” is crucial in more advanced deployment scenarios, as it creates the possibility of an automated deployment. This aspect will be the subject of one of my future publications.&nbsp;</p>
+
+<p><img height="232" width="246" src="Fig-5.png" class="lazyload"></p>
+
+<p>Another remark is that leaving the option “Target runtime” as “portable” will also generate an image compatible with Linux. The option “linux-x64” creates however a container which is optimized for Linux. Therefore, both options will work and there is no impact on the use case. &nbsp;</p>
+
+<h3>Step 5: Dockerfile, docker build, and local test&nbsp;</h3>
+
+<p>In order to create Docker image, we first create a docker file which will be used by the local DockerDesktop to generate the image. Here, we use ASPNET 8.0 runtime as base image, as opposed to the possibility of using .NET SDK as base image (from mcr.microsoft.com/dotnet/sdk:8.0). In this case, the base image would be much larger, thus generating a larger image from our build.&nbsp; &nbsp;</p>
+
+<div class="pre-lang" id="premain141245"><div>Shell</div><div class="pre-action-link"><span id="copycode141245" class="copy-code" data-index="141245" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre141245" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">Dockerfile
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+COPY bin/Release/net8.0/publish/ BlazorAppPublish/
+EXPOSE <span class="code-digit">8088</span>
+WORKDIR /BlazorAppPublish
+ENTRYPOINT <span class="code-keyword">[</span><span class="code-string">"</span><span class="code-string">dotnet"</span>, <span class="code-string">"</span><span class="code-string">blazorapp.dll"</span>]</pre>
+
+<p>To execute Docker build, the docker file should be located in the root folder of the Visual Studio 2022 project (next to the *.csproj file thus). It is important to set in PowerShell the working directory for Docker in the folder containing the dockerfile. The path to this folder is thus “path/to/blazorapp” (for example C:\Work\blazorapp). Docker build and Docker run are executed using the following commands.</p>
+
+<div class="pre-lang" id="premain435993"><div>Shell</div><div class="pre-action-link"><span id="copycode435993" class="copy-code" data-index="435993" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre435993" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">docker build -t blazorapp-img -f  Dockerfile .</pre>
+
+<div class="pre-lang" id="premain621024"><div>Shell</div><div class="pre-action-link"><span id="copycode621024" class="copy-code" data-index="621024" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre621024" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">docker run -it -p <span class="code-digit">8088</span>:<span class="code-digit">8088</span> --name blazorapp-cnt blazorapp-img</pre>
+
+<p>Running the created image blazorapp-img allows to test the application on localhost, it is however not necessary for the use case implementation.</p>
+
+<h3>Step 6: Image export to *.tar and deploying to GCP Artifact Registry&nbsp;</h3>
+
+<p>The following docker command exports the built image from the local DockerDesktop to a local *.tar file.&nbsp;</p>
+
+<div class="pre-lang" id="premain214431"><div>Shell</div><div class="pre-action-link"><span id="copycode214431" class="copy-code" data-index="214431" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre214431" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">docker save blazorapp-img -o blazorapp-img.tar</pre>
+
+<p>Next, we upload the file blazorapp-img.tar from a local folder to GCP Cloud Shell using the upload menu of the shell.</p>
+
+<p><img height="221" width="562" src="Fig-6.png"></p>
+
+<p>After uploading the *.tar file to Cloud Shell, the image can be extracted using Cloud Shell's Docker. Then, it can be tagged and deployed to GCP Artifact Registry (GAR). These steps are done using the commands summarized next.</p>
+
+<p>1. Loading *.tar into Docker in Cloud Shell</p>
+
+<div class="pre-lang" id="premain780881"><div>Shell</div><div class="pre-action-link"><span id="copycode780881" class="copy-code" data-index="780881" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre780881" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">docker load --input blazorapp-img.tar</pre>
+
+<p>2. Tagging</p>
+
+<div class="pre-lang" id="premain266058"><div>Shell</div><div class="pre-action-link"><span id="copycode266058" class="copy-code" data-index="266058" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre266058" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">docker tag blazorapp-img:latest europe-west1-docker.pkg.dev/winged-fact-431520-t4/gar-dockerimg-webapp/blazorapp-img</pre>
+
+<p>The tagging command uses the following pattern:</p>
+
+<p>docker tag &lt;image&gt;:&lt;tag&gt; &lt;region&gt;-docker.pkg.dev/&lt;project-id&gt;/&lt;registry-name&gt;/&lt;image&gt;</p>
+
+<p>3. Deploying/pushing to GCP Artifact Registry</p>
+
+<div class="pre-lang" id="premain431908"><div>Shell</div><div class="pre-action-link"><span id="copycode431908" class="copy-code" data-index="431908" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre431908" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">docker push europe-west1-docker.pkg.dev/winged-fact-431520-t4/gar-dockerimg-webapp/blazorapp-img  </pre>
+
+<p>Also in this case the pattern is easy to recognize</p>
+
+<p>docker push &lt;region&gt;-docker.pkg.dev/&lt;project-id&gt;/&lt;registry-name&gt;/&lt;image&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p>
+
+<p>After implementing this step, the image is visible in GCP Artifact Registry.</p>
+
+<p><img height="360" width="652" src="Fig-7.png"></p>
+
+<h3>Step 7: Creating a Cloud Run service&nbsp;</h3>
+
+<p>The uploaded image can now be used by the Cloud Run service.&nbsp; Creation of this type of GCP service is done via the command “gcloud run deploy &lt;service-name&gt; …” as follows:</p>
+
+<div class="pre-lang" id="premain720367"><div>Shell</div><div class="pre-action-link"><span id="copycode720367" class="copy-code" data-index="720367" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre720367" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">gcloud run deploy blazorappsvc --image europe-west1-docker.pkg.dev/winged-fact-431520-t4/gar-dockerimg-webapp/blazorapp-img:latest --platform managed --port <span class="code-digit">8088</span></pre>
+
+<p>This command&nbsp; follows the pattern highlighted in Section 4. Upon executing it, the user is requested to enter the following information</p>
+
+<ul>
+	<li>Region name</li>	<li>Allow unauthenticated invocations to [blazorappsvc] (y/N)?&nbsp;</li></ul>
+
+<p>After providing this input, the Cloud Run service is created and the following lines are shown.</p>
+
+<div class="pre-lang" id="premain687243"><div>Shell</div><div class="pre-action-link"><span id="copycode687243" class="copy-code" data-index="687243" style="visibility:hidden"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 460 460" style="width: 16px;height:16px;" xml:space="preserve"><g><path d="M425.934,0H171.662c-18.122,0-32.864,14.743-32.864,32.864v77.134h30V32.864c0-1.579,1.285-2.864,2.864-2.864h254.272     c1.579,0,2.864,1.285,2.864,2.864v254.272c0,1.58-1.285,2.865-2.864,2.865h-74.729v30h74.729 c18.121,0,32.864-14.743,32.864-32.865V32.864C458.797,14.743,444.055,0,425.934,0z"></path><path d="M288.339,139.998H34.068c-18.122,0-32.865,14.743-32.865,32.865v254.272C1.204,445.257,15.946,460,34.068,460h254.272 c18.122,0,32.865-14.743,32.865-32.864V172.863C321.206,154.741,306.461,139.998,288.339,139.998z M288.341,430H34.068    c-1.58,0-2.865-1.285-2.865-2.864V172.863c0-1.58,1.285-2.865,2.865-2.865h254.272c1.58,0,2.865,1.285,2.865,2.865v254.273h0.001 C291.206,428.715,289.92,430,288.341,430z"></path></g></svg></span></div></div>
+<pre id="pre687243" style="margin-top:0;" class="lang-shell" data-language="shell" data-allowshrink="True" data-collapse="False">Deploying container to Cloud Run service <span class="code-keyword">[</span><span class="code-sdkkeyword">blazorappsvc</span>] <span class="code-keyword">in</span> project <span class="code-keyword">[</span><span class="code-sdkkeyword">winged</span>-fact-<span class="code-digit">431520</span>-t4] region <span class="code-keyword">[</span><span class="code-sdkkeyword">europe</span>-west1]
+  OK Deploying new service... Done.                                                                                    
+  OK Creating Revision...
+  OK Routing traffic...
+  OK Setting IAMPolicy... Done.
+Service <span class="code-keyword">[</span><span class="code-sdkkeyword">blazorappsvc</span>] revision <span class="code-keyword">[</span><span class="code-sdkkeyword">blazorappsvc</span>-<span class="code-digit">00001</span>-ztw] has been deployed and is serving <span class="code-digit">100</span> percent of traffic.
+Service URL: https://blazorappsvc-ekkselfpua-ew.a.run.app</pre>
+
+<p>This way, we succeded with deploying the Blazor container from GAR on Cloud Run. The dockerized Blazor application is now running as a service named blazorappsvc, and is accessible via a https endpoint on a temporary Internet domain &nbsp;<a href="https://blazorappsvc-ekkselfpua-ew.a.run.app">https://blazorappsvc-ekkselfpua-ew.a.run.app</a> . The status of Cloud Run can also be seen in GCP Console.</p>
+
+<p><img height="302" width="583" src="Fig-8.png"></p>
+
+<h3>Step 8: Testing https access &nbsp;&nbsp;</h3>
+
+<p>The https endpoint generated by Cloud Run <a href="https://blazorappsvc-ekkselfpua-ew.a.run.app">https://blazorappsvc-ekkselfpua-ew.a.run.app</a> allows to access the deployed Blazor web application.</p>
+
+<p><img height="298" width="652" src="Fig-9.png"></p>
+
+<h2>6. Points of Interest</h2>
+
+<p>This article shows that GCP Cloud Run is an interesting option for cloud deployment of dockerized web applications such as .NET 8 Blazor Web App, mainly because it hides many details of the GCP deployment process and provides https accesss out-of-the box.</p>
+
+<p>Also, it needs to be underlined that GCP Cloud Run service is built on Knative technology, which is different from Kubernetes technology used in GKE. An additional benefit is also that container pool size is autoscaled to zero when there are no requests, which is a cost-saving behaviour.<br>
+See of example <a href="https://cloud.google.com/run/docs/configuring/cpu-allocation">https://cloud.google.com/run/docs/configuring/cpu-allocation</a>.</p>
+
+<h2>History</h2>
+
+<p>2024.08.20 - First final version.<br>
+2024.08.24 - Source code zip added, minor text errors corrected.</p></body></html>
+
+<!-- Article Ends -->
+
+
+						</div>
+						
+
+						
+						<h2>License</h2>
+						<div id="LicenseTerms"><p>This article, along with any associated source code and files, is licensed under <a href="http://www.codeproject.com/info/cpol10.aspx" rel="license">The Code Project Open License (CPOL)</a></p></div>
+						
+
+						
+						<br />
+						
+						    <br />
+						
+						
+
+						<div class="clearfix"></div>
+
+						<div style="padding-top:8px">
+							
+						</div>
+
+					
+
+				    
+					</form>
+
+				</div>
+
+				
+				<div class="bottom-promo"> 
+				    
+				</div>
+				
+                
+                
+
+				
+				
+				
+
+			</div>
+			
+
+            
+            
+            
+
+        </div>
+        
+
+		
+		<div class="site-footer">
+			<div class="align-left">
+				<a id="ctl00_PermaLink" href="/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl">Permalink</a><br>
+				<br>
+				<a id="ctl00_PrivacyLink" href="/info/privacy.aspx">Privacy</a><br>
+    			<a id="ctl00_CookiePolicyLink" href="/info/cookie.aspx">Cookies</a><br>
+                <a id="ctl00_TermsOfUseLink" href="/info/TermsOfUse.aspx">Terms of Use</a><br>
+			</div>
+
+            <div class="align-center">
+				
+
+
+<div class="page-width">
+    Layout: <a id="ctl00_PageWidth_FixedT" title="Fixed width layout" rel="nofollow" class=" active" href="/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl?PageFlow=FixedWidth">fixed</a>
+    |
+    <a id="ctl00_PageWidth_FluidT" title="Fluid layout" rel="nofollow" href="/Articles/5353867/Containerizing-a-NET-8-Blazor-application-and-depl?PageFlow=Fluid">fluid</a>
+</div>
+
+
+				
+
+				
+
+	            
+
+                <br>
+			</div>
+                
+			<div class="align-right">
+				Article Copyright 2024 by peterkmx<br />Everything else
+				Copyright &copy; <a href="mailto:webmaster@codeproject.com">CodeProject</a>, 1999-2024<br />
+                <br>
+				Web01 
+				2.8:2024-12-08:1<br>
+			</div>
+		</div>
+		
+
+		<br clear="all" />
+		
+			
+
+	</div> 
+	</div> 
+</div>
+
+
+
+
+
+
+
+<script type="text/javascript"> // DEFERRED script
+
+document.addEventListener('DOMContentLoaded', function() {
+
+	new CodeBlocks().initialise('#contentdiv');
+	
+	$('.author-wrapper .description').shorten({showChars: 400});
+	
+	anchorAnimate();
+	
+	$('#__EVENTVALIDATION').attr('autocomplete', 'off');
+
+})
+</script>
+
+
+
+
+
+
+
+
+</body>
+
+</html>
